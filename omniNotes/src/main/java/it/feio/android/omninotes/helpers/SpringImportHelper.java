@@ -28,6 +28,7 @@ import exceptions.ImportException;
 import it.feio.android.omninotes.R;
 import it.feio.android.omninotes.db.DbHelper;
 import it.feio.android.omninotes.helpers.notifications.NotificationChannels.NotificationChannelNames;
+import it.feio.android.omninotes.helpers.notifications.NotificationParams;
 import it.feio.android.omninotes.helpers.notifications.NotificationsHelper;
 import it.feio.android.omninotes.models.Attachment;
 import it.feio.android.omninotes.models.Category;
@@ -75,10 +76,11 @@ public class SpringImportHelper {
       // Updating notification
       updateImportNotification(importer, mNotificationsHelper);
     } catch (ImportException e) {
-      new NotificationsHelper(context)
-          .createStandardNotification(NotificationChannelNames.BACKUPS,
+      NotificationParams params=new NotificationParams(NotificationChannelNames.BACKUPS,
               R.drawable.ic_emoticon_sad_white_24dp,
-              context.getString(R.string.import_fail) + ": " + e.getMessage(), null).setLedActive()
+              context.getString(R.string.import_fail) + ": " + e.getMessage(), null);
+      new NotificationsHelper(context)
+          .createStandardNotification(params).setLedActive()
           .show();
       return;
     }

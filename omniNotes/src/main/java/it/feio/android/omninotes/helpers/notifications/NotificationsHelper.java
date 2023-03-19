@@ -96,29 +96,26 @@ public class NotificationsHelper {
     }
   }
 
-  public NotificationsHelper createStandardNotification(
-      @NonNull NotificationChannels.NotificationChannelNames channelName, int
-      smallIcon, String title, PendingIntent notifyIntent) {
-    return createNotification(channelName, smallIcon, title, notifyIntent, false);
+  public NotificationsHelper createStandardNotification(NotificationParams params) {
+    params.setIsOngoing(false);
+    return createNotification(params);
   }
 
-  public NotificationsHelper createOngoingNotification(
-      @NonNull NotificationChannels.NotificationChannelNames channelName, int
-      smallIcon, String title, PendingIntent notifyIntent) {
-    return createNotification(channelName, smallIcon, title, notifyIntent, true);
+  public NotificationsHelper createOngoingNotification(NotificationParams params) {
+    params.setIsOngoing(true);
+    return createNotification(params);
   }
 
   public NotificationsHelper createNotification(
-      @NonNull NotificationChannels.NotificationChannelNames channelName, int
-      smallIcon, String title, PendingIntent notifyIntent, boolean isOngoing) {
+      NotificationParams params) {
     mBuilder = new NotificationCompat.Builder(mContext,
-        NotificationChannels.channels.get(channelName).id)
-        .setSmallIcon(smallIcon)
-        .setContentTitle(title)
-        .setAutoCancel(!isOngoing)
-        .setOngoing(isOngoing)
+        NotificationChannels.channels.get(params.channelName).id)
+        .setSmallIcon(params.smallIcon)
+        .setContentTitle(params.title)
+        .setAutoCancel(!params.isOngoing)
+        .setOngoing(params.isOngoing)
         .setColor(mContext.getResources().getColor(R.color.colorAccent))
-        .setContentIntent(notifyIntent);
+        .setContentIntent(params.notifyIntent);
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
       setLargeIcon(R.drawable.logo_notification_lollipop);
@@ -207,7 +204,8 @@ public class NotificationsHelper {
 
   public NotificationsHelper start(NotificationChannels.NotificationChannelNames channelName, int
       smallIcon, String title) {
-    createStandardNotification(channelName, smallIcon, title, null).setIndeterminate().setOngoing();
+    NotificationParams params=new NotificationParams(channelName, smallIcon, title, null);
+    createStandardNotification(params).setIndeterminate().setOngoing();
     mNotificationManager.notify(0, mBuilder.setOnlyAlertOnce(true).build());
     return this;
   }

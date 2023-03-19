@@ -34,6 +34,7 @@ import it.feio.android.omninotes.db.DbHelper;
 import it.feio.android.omninotes.helpers.IntentHelper;
 import it.feio.android.omninotes.helpers.LogDelegate;
 import it.feio.android.omninotes.helpers.notifications.NotificationChannels.NotificationChannelNames;
+import it.feio.android.omninotes.helpers.notifications.NotificationParams;
 import it.feio.android.omninotes.helpers.notifications.NotificationsHelper;
 import it.feio.android.omninotes.models.Attachment;
 import it.feio.android.omninotes.models.Note;
@@ -82,9 +83,10 @@ public class AlarmReceiver extends BroadcastReceiver {
     String text = titleAndContent[1].toString();
 
     NotificationsHelper notificationsHelper = new NotificationsHelper(mContext);
-    notificationsHelper.createStandardNotification(NotificationChannelNames.REMINDERS,
-        R.drawable.ic_stat_notification,
-        title, notifyIntent).setLedActive().setMessage(text);
+    NotificationParams params=new NotificationParams(NotificationChannelNames.REMINDERS,
+            R.drawable.ic_stat_notification,
+            title, notifyIntent);
+    notificationsHelper.createStandardNotification(params).setLedActive().setMessage(text);
 
     List<Attachment> attachments = note.getAttachmentsList();
     if (!attachments.isEmpty() && !attachments.get(0).getMime_type().equals(MIME_TYPE_FILES)) {

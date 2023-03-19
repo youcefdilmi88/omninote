@@ -140,6 +140,7 @@ import it.feio.android.omninotes.helpers.TagOpenerHelper;
 import it.feio.android.omninotes.helpers.date.DateHelper;
 import it.feio.android.omninotes.helpers.date.RecurrenceHelper;
 import it.feio.android.omninotes.helpers.notifications.NotificationChannels.NotificationChannelNames;
+import it.feio.android.omninotes.helpers.notifications.NotificationParams;
 import it.feio.android.omninotes.helpers.notifications.NotificationsHelper;
 import it.feio.android.omninotes.models.Attachment;
 import it.feio.android.omninotes.models.Category;
@@ -1869,9 +1870,10 @@ public class DetailFragment extends BaseFragment implements OnReminderPickedList
     String pinnedContent = titleAndContent[1].toString();
 
     NotificationsHelper notificationsHelper = new NotificationsHelper(getContext());
+    NotificationParams params=new NotificationParams(NotificationChannelNames.PINNED, R.drawable.ic_stat_notification,
+            pinnedTitle, notifyIntent);
     notificationsHelper
-        .createOngoingNotification(NotificationChannelNames.PINNED, R.drawable.ic_stat_notification,
-            pinnedTitle, notifyIntent).setMessage(pinnedContent);
+        .createOngoingNotification(params).setMessage(pinnedContent);
 
     List<Attachment> attachments = note.getAttachmentsList();
     if (!attachments.isEmpty() && !attachments.get(0).getMime_type().equals(MIME_TYPE_FILES)) {

@@ -388,17 +388,12 @@ public class DbHelper extends SQLiteOpenHelper {
     return getNotes(whereCondition, true);
   }
 
-
-  /**
-   * Common method for notes retrieval. It accepts a query to perform and returns matching records.
-   */
-  public List<Note> getNotes(String whereCondition, boolean order) {
-    List<Note> noteList = new ArrayList<>();
+  public List<String> sortParams(boolean order) {
+    List<String> params=new ArrayList<>();
 
     String sortColumn = "";
     String sortOrder = "";
 
-    // Getting sorting criteria from preferences. Reminder screen forces sorting.
     if (Navigation.checkNavigation(Navigation.REMINDERS)) {
       sortColumn = KEY_REMINDER;
     } else {
@@ -406,7 +401,7 @@ public class DbHelper extends SQLiteOpenHelper {
     }
     if (order) {
       sortOrder =
-          KEY_TITLE.equals(sortColumn) || KEY_REMINDER.equals(sortColumn) ? " ASC " : " DESC ";
+              KEY_TITLE.equals(sortColumn) || KEY_REMINDER.equals(sortColumn) ? " ASC " : " DESC ";
     }
 
     // In case of title sorting criteria it must be handled empty title by concatenating content
@@ -414,32 +409,52 @@ public class DbHelper extends SQLiteOpenHelper {
 
     // In case of reminder sorting criteria the empty reminder notes must be moved on bottom of results
     sortColumn = KEY_REMINDER.equals(sortColumn) ? "IFNULL(" + KEY_REMINDER + ", " +
-        "" + TIMESTAMP_UNIX_EPOCH + ")" : sortColumn;
+            "" + TIMESTAMP_UNIX_EPOCH + ")" : sortColumn;
 
-    // Generic query to be specialized with conditions passed as parameter
+    params.add(sortColumn);
+    params.add(sortOrder);
+
+    return params;
+  }
+
+  public String constructQuery(String whereCondition,boolean order,String sortColumn,String sortOrder) {
     String query = "SELECT "
-        + KEY_CREATION + ","
-        + KEY_LAST_MODIFICATION + ","
-        + KEY_TITLE + ","
-        + KEY_CONTENT + ","
-        + KEY_ARCHIVED + ","
-        + KEY_TRASHED + ","
-        + KEY_REMINDER + ","
-        + KEY_REMINDER_FIRED + ","
-        + KEY_RECURRENCE_RULE + ","
-        + KEY_LATITUDE + ","
-        + KEY_LONGITUDE + ","
-        + KEY_ADDRESS + ","
-        + KEY_LOCKED + ","
-        + KEY_CHECKLIST + ","
-        + KEY_CATEGORY + ","
-        + KEY_CATEGORY_NAME + ","
-        + KEY_CATEGORY_DESCRIPTION + ","
-        + KEY_CATEGORY_COLOR
-        + " FROM " + TABLE_NOTES
-        + " LEFT JOIN " + TABLE_CATEGORY + " USING( " + KEY_CATEGORY + ") "
-        + whereCondition
-        + (order ? " ORDER BY " + sortColumn + " COLLATE NOCASE " + sortOrder : "");
+            + KEY_CREATION + ","
+            + KEY_LAST_MODIFICATION + ","
+            + KEY_TITLE + ","
+            + KEY_CONTENT + ","
+            + KEY_ARCHIVED + ","
+            + KEY_TRASHED + ","
+            + KEY_REMINDER + ","
+            + KEY_REMINDER_FIRED + ","
+            + KEY_RECURRENCE_RULE + ","
+            + KEY_LATITUDE + ","
+            + KEY_LONGITUDE + ","
+            + KEY_ADDRESS + ","
+            + KEY_LOCKED + ","
+            + KEY_CHECKLIST + ","
+            + KEY_CATEGORY + ","
+            + KEY_CATEGORY_NAME + ","
+            + KEY_CATEGORY_DESCRIPTION + ","
+            + KEY_CATEGORY_COLOR
+            + " FROM " + TABLE_NOTES
+            + " LEFT JOIN " + TABLE_CATEGORY + " USING( " + KEY_CATEGORY + ") "
+            + whereCondition
+            + (order ? " ORDER BY " + sortColumn + " COLLATE NOCASE " + sortOrder : "");
+
+    return query;
+  }
+
+  /**
+   * Common method for notes retrieval. It accepts a query to perform and returns matching records.
+   */
+  public List<Note> getNotes(String whereCondition, boolean order) {
+    List<Note> noteList = new ArrayList<>();
+
+    /** [0] sortColumn [1] sortOrder */
+    List<String> params=sortParams(order);
+    /** construction du query **/
+    String query=constructQuery(whereCondition,order,params.get(0),params.get(1));
 
     LogDelegate.v("Query: " + query);
 
